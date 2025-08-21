@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Completo MNS Group</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-50%) translateY(-2px);
+        }
+        
+        .header-content {
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .calendar-info {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .quick-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .calendar-wrapper {
+            padding: 20px;
+            background: white;
+        }
+        
+        .calendar-frame {
+            width: 100%;
+            height: 700px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .view-options {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .view-btn {
+            padding: 8px 16px;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+        }
+        
+        .view-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .view-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+        
+        .info-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .sync-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid #e9ecef;
+            margin: 10px 5px;
+        }
+        
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .calendar-tips {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .calendar-tips h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .calendar-tips ul {
+            color: #6c757d;
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            z-index: 10;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .quick-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .calendar-frame {
+                height: 500px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .back-button {
+                position: static;
+                transform: none;
+                margin-bottom: 15px;
+            }
+            
+            .header {
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .calendar-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .view-options {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="./index.html" class="back-button">
+                ← Dashboard
+            </a>
+            <div class="header-content">
+                <h1>📅 Calendario Completo</h1>
+                <p>MNS Group - Vista calendario unificata</p>
+            </div>
+        </div>
+        
+        <div class="calendar-info">
+            <strong>📧 Sincronizzato con:</strong> monkeynsleeps@gmail.com | 
+            <strong>🔄 Ultimo aggiornamento:</strong> <span id="lastUpdate">Caricamento...</span>
+        </div>
+        
+        <div class="quick-actions">
+            <a href="https://calendar.google.com/calendar/u/0/r/eventedit" target="_blank" class="btn btn-primary">
+                ➕ Nuovo Evento
+            </a>
+            <a href="https://calendar.google.com/calendar/u/0/r?cid=monkeynsleeps@gmail.com" target="_blank" class="btn btn-secondary">
+                🔗 Apri in Google Calendar
+            </a>
+            <a href="./index.html" class="btn btn-secondary">
+                📊 Dashboard
+            </a>
+            <a href="https://gianlucamadeddu.github.io/mns-group-portal/" class="btn btn-secondary">
+                🏠 Portale MNS
+            </a>
+        </div>
+        
+        <div class="calendar-wrapper">
+            <div class="calendar-tips">
+                <h4>💡 Suggerimenti per l'uso:</h4>
+                <ul>
+                    <li><strong>Nuovi eventi:</strong> Clicca su "Nuovo Evento" o direttamente su una data nel calendario</li>
+                    <li><strong>Modifiche:</strong> Clicca su un evento esistente per modificarlo</li>
+                    <li><strong>Visualizzazioni:</strong> Usa i controlli sotto per cambiare vista (Mese/Settimana/Giorno)</li>
+                    <li><strong>Sincronizzazione:</strong> Tutti gli eventi si sincronizzano automaticamente sui vostri dispositivi</li>
+                </ul>
+            </div>
+            
+            <div class="calendar-controls">
+                <div>
+                    <span style="font-weight: 600; color: #495057;">Visualizzazione:</span>
+                </div>
+                <div class="view-options">
+                    <button class="view-btn active" onclick="changeView('month')">📅 Mese</button>
+                    <button class="view-btn" onclick="changeView('week')">📋 Settimana</button>
+                    <button class="view-btn" onclick="changeView('agenda')">📝 Agenda</button>
+                </div>
+            </div>
+            
+            <div style="position: relative;">
+                <div id="loadingOverlay" class="loading-overlay">
+                    <div>
+                        <div class="spinner"></div>
+                        <p style="margin-top: 15px; color: #6c757d;">Caricamento calendario...</p>
+                    </div>
+                </div>
+                
+                <!-- IMPORTANTE: Sostituisci questo URL con l'embed del vostro calendario Google -->
+                <iframe id="calendarFrame"
+                        src="https://calendar.google.com/calendar/embed?height=700&wkst=2&bgcolor=%23ffffff&ctz=Europe%2FRome&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0&mode=MONTH&src=monkeynsleeps%40gmail.com" 
+                        class="calendar-frame" 
+                        frameborder="0" 
+                        scrolling="no">
+                </iframe>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <div class="sync-status">
+                <div class="sync-indicator"></div>
+                <span>Sincronizzazione attiva</span>
+            </div>
+            <div class="sync-status">
+                <span>👥</span>
+                <span>5 soci collegati</span>
+            </div>
+            <div class="sync-status">
+                <span>📱</span>
+                <span>Mobile sync abilitata</span>
+            </div>
+            <br>
+            <p><strong>Soci MNS Group:</strong> Gianluca, Andrea, Simone, Nicola, Gabriele</p>
+            <p><small>Per supporto tecnico contatta Gianluca | Ultimo aggiornamento sistema: Agosto 2025</small></p>
+        </div>
+    </div>
+    
+    <script>
+        // Simula il caricamento del calendario
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                updateLastUpdate();
+            }, 2000);
+        });
+        
+        function updateLastUpdate() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('it-IT', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            document.getElementById('lastUpdate').textContent = `Oggi alle ${timeString}`;
+        }
+        
+        function changeView(viewType) {
+            // Rimuovi classe active da tutti i bottoni
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Aggiungi classe active al bottone cliccato
+            event.target.classList.add('active');
+            
+            // Cambia l'URL dell'iframe in base alla vista
+            const iframe = document.getElementById('calendarFrame');
+            const baseUrl = "https://calendar.google.com/calendar/embed?height=700&wkst=2&bgcolor=%23ffffff&ctz=Europe%2FRome&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0";
+            
+            let modeParam;
+            switch(viewType) {
+                case 'month':
+                    modeParam = 'MONTH';
+                    break;
+                case 'week':
+                    modeParam = 'WEEK';
+                    break;
+                case 'agenda':
+                    modeParam = 'AGENDA';
+                    break;
+                default:
+                    modeParam = 'MONTH';
+            }
+            
+            iframe.src = `${baseUrl}&mode=${modeParam}&src=monkeynsleeps%40gmail.com`;
+            
+            // Mostra overlay di caricamento
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'flex';
+            
+            // Nascondi overlay dopo 1 secondo
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                updateLastUpdate();
+            }, 1000);
+        }
+        
+        // Aggiorna timestamp ogni minuto
+        setInterval(updateLastUpdate, 60000);
+        
+        // Aggiornamento automatico del calendario ogni 5 minuti
+        setInterval(() => {
+            console.log('Refresh automatico calendario...');
+            const iframe = document.getElementById('calendarFrame');
+            const currentSrc = iframe.src;
+            iframe.src = currentSrc;
+            updateLastUpdate();
+        }, 300000);
+    </script>
+</body>
+</html>
