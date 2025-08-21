@@ -343,15 +343,15 @@
         
         <div class="stats-row">
             <div class="stat-card">
-                <div class="stat-number" id="todayCount">-</div>
+                <div class="stat-number" id="todayCount">0</div>
                 <div class="stat-label">Eventi Oggi</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="weekCount">-</div>
+                <div class="stat-number" id="weekCount">0</div>
                 <div class="stat-label">Prossimi 7 giorni</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="urgentCount">-</div>
+                <div class="stat-number" id="urgentCount">0</div>
                 <div class="stat-label">Scadenze urgenti</div>
             </div>
             <div class="stat-card">
@@ -364,14 +364,14 @@
             <div class="card today-events">
                 <h3>🗓️ Eventi di Oggi</h3>
                 <div id="todayEvents" class="event-list">
-                    <div class="loading">Caricamento eventi in corso...</div>
+                    <div class="no-events">Nessun evento programmato per oggi</div>
                 </div>
             </div>
             
             <div class="card upcoming-events">
                 <h3>⏰ Prossimi Eventi</h3>
                 <div id="upcomingEvents" class="event-list">
-                    <div class="loading">Caricamento eventi in corso...</div>
+                    <div class="no-events">Nessun evento in programma</div>
                 </div>
             </div>
             
@@ -400,61 +400,20 @@
     </div>
     
     <script>
-        // Dati di esempio - sostituiremo con l'API Google Calendar
-        const eventiEsempio = {
-            oggi: [
-                {
-                    time: "09:30 - 10:30",
-                    title: "Standup mattutino",
-                    attendees: "Tutti i soci",
-                    type: "meeting"
-                },
-                {
-                    time: "14:30 - 16:00", 
-                    title: "Riunione mensile strategica",
-                    attendees: "Gianluca, Andrea, Simone",
-                    type: "meeting"
-                },
-                {
-                    time: "17:00 - 18:00",
-                    title: "Call cliente - Progetto Alfa", 
-                    attendees: "Nicola, Gabriele",
-                    type: "client"
-                }
-            ],
-            prossimi: [
-                {
-                    time: "Dom 25 Ago",
-                    title: "🚨 Scadenza bilancio Q2",
-                    attendees: "Gianluca, Andrea", 
-                    type: "deadline"
-                },
-                {
-                    time: "Mer 28 Ago - 10:00",
-                    title: "Workshop: Valutazione Marchi",
-                    attendees: "Tutti i soci",
-                    type: "workshop"
-                },
-                {
-                    time: "Ven 30 Ago - 15:00", 
-                    title: "Review trimestrale",
-                    attendees: "Tutti i soci",
-                    type: "meeting"
-                },
-                {
-                    time: "Lun 2 Set - 09:00",
-                    title: "Presentazione nuovo cliente",
-                    attendees: "Simone, Nicola", 
-                    type: "client"
-                }
-            ]
+        // Array eventi pulito - pronto per integrazione API Google Calendar
+        const eventiCalendario = {
+            oggi: [],
+            prossimi: []
         };
         
         function renderEvents(eventi, containerId) {
             const container = document.getElementById(containerId);
             
             if (eventi.length === 0) {
-                container.innerHTML = '<div class="no-events">Nessun evento programmato</div>';
+                const message = containerId === 'todayEvents' ? 
+                    'Nessun evento programmato per oggi' : 
+                    'Nessun evento in programma';
+                container.innerHTML = `<div class="no-events">${message}</div>`;
                 return;
             }
             
@@ -472,6 +431,9 @@
             const today = new Date();
             const currentMonth = today.getMonth();
             const currentYear = today.getFullYear();
+            
+            // Pulisce calendario esistente
+            calendar.innerHTML = '';
             
             // Headers giorni settimana
             const headers = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
@@ -504,11 +466,8 @@
                         div.classList.add('mini-calendar-today');
                     }
                     
-                    // Giorni con eventi (esempio)
-                    const hasEvent = [5, 7, 12, 15, 21, 25, 28, 30].includes(cellDate.getDate());
-                    if (hasEvent) {
-                        div.classList.add('mini-calendar-has-event');
-                    }
+                    // Qui si potranno aggiungere eventi reali dal Google Calendar
+                    // Per ora nessun evento evidenziato
                 }
                 
                 calendar.appendChild(div);
@@ -516,9 +475,9 @@
         }
         
         function updateStats() {
-            document.getElementById('todayCount').textContent = eventiEsempio.oggi.length;
-            document.getElementById('weekCount').textContent = eventiEsempio.oggi.length + eventiEsempio.prossimi.length;
-            document.getElementById('urgentCount').textContent = eventiEsempio.prossimi.filter(e => e.type === 'deadline').length;
+            document.getElementById('todayCount').textContent = eventiCalendario.oggi.length;
+            document.getElementById('weekCount').textContent = eventiCalendario.oggi.length + eventiCalendario.prossimi.length;
+            document.getElementById('urgentCount').textContent = eventiCalendario.prossimi.filter(e => e.type === 'deadline').length;
         }
         
         function updateCurrentMonth() {
@@ -531,17 +490,17 @@
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
             updateCurrentMonth();
-            renderEvents(eventiEsempio.oggi, 'todayEvents');
-            renderEvents(eventiEsempio.prossimi, 'upcomingEvents'); 
+            renderEvents(eventiCalendario.oggi, 'todayEvents');
+            renderEvents(eventiCalendario.prossimi, 'upcomingEvents'); 
             generateMiniCalendar();
             updateStats();
         });
         
-        // Aggiornamento automatico ogni 5 minuti
-        setInterval(() => {
-            console.log('Aggiornamento dati calendario...');
-            // Qui si collegherà l'API Google Calendar
-        }, 300000);
+        // Qui si potrà aggiungere l'integrazione con Google Calendar API
+        // setInterval(() => {
+        //     console.log('Controllo aggiornamenti calendario...');
+        //     // Fetch eventi da Google Calendar API
+        // }, 300000);
     </script>
 </body>
 </html>
