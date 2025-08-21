@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario MNS Group - Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: #5a6fd8;
+            transform: translateY(-50%) translateY(-2px);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            color: #495057;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            color: #6c757d;
+            font-size: 1.1em;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3em;
+        }
+        
+        .today-events {
+            border-left: 5px solid #28a745;
+        }
+        
+        .upcoming-events {
+            border-left: 5px solid #007bff;
+        }
+        
+        .event-list {
+            space-y: 15px;
+        }
+        
+        .event-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .event-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .event-meeting {
+            border-left-color: #667eea;
+        }
+        
+        .event-deadline {
+            border-left-color: #dc3545;
+        }
+        
+        .event-workshop {
+            border-left-color: #28a745;
+        }
+        
+        .event-client {
+            border-left-color: #ffc107;
+        }
+        
+        .event-time {
+            font-weight: bold;
+            color: #495057;
+            font-size: 1.1em;
+        }
+        
+        .event-title {
+            color: #495057;
+            margin: 5px 0;
+            font-size: 1em;
+        }
+        
+        .event-attendees {
+            color: #6c757d;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .no-events {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 30px;
+        }
+        
+        .month-overview {
+            grid-column: 1 / -1;
+        }
+        
+        .mini-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .mini-calendar-header {
+            text-align: center;
+            font-weight: bold;
+            color: #495057;
+            padding: 10px 5px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .mini-calendar-day {
+            text-align: center;
+            padding: 10px 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mini-calendar-day:hover {
+            background: #e9ecef;
+        }
+        
+        .mini-calendar-today {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .mini-calendar-has-event {
+            background: #fff3cd;
+        }
+        
+        .mini-calendar-has-event::after {
+            content: '•';
+            position: absolute;
+            bottom: 2px;
+            right: 50%;
+            transform: translateX(50%);
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .quick-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1em;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .calendar-sync-info {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #155724;
+            text-align: center;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #6c757d;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .back-button {
+                position: static;
+                transform: none;
+                margin-bottom: 15px;
+            }
+            
+            .header {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="https://gianlucamadeddu.github.io/mns-group-portal/" class="back-button">
+                ← Portale MNS
+            </a>
+            <h1>📊 Dashboard Calendario</h1>
+            <p>MNS Group - Vista esecutiva eventi e scadenze</p>
+        </div>
+        
+        <div class="calendar-sync-info">
+            <strong>📧 Account collegato:</strong> monkeynsleeps@gmail.com | 
+            <strong>👥 Soci:</strong> Gianluca, Andrea, Simone, Nicola, Gabriele
+        </div>
+        
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-number" id="todayCount">-</div>
+                <div class="stat-label">Eventi Oggi</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="weekCount">-</div>
+                <div class="stat-label">Prossimi 7 giorni</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="urgentCount">-</div>
+                <div class="stat-label">Scadenze urgenti</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Soci attivi</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card today-events">
+                <h3>🗓️ Eventi di Oggi</h3>
+                <div id="todayEvents" class="event-list">
+                    <div class="loading">Caricamento eventi in corso...</div>
+                </div>
+            </div>
+            
+            <div class="card upcoming-events">
+                <h3>⏰ Prossimi Eventi</h3>
+                <div id="upcomingEvents" class="event-list">
+                    <div class="loading">Caricamento eventi in corso...</div>
+                </div>
+            </div>
+            
+            <div class="card month-overview">
+                <h3>📅 Panoramica <span id="currentMonth">Agosto 2025</span></h3>
+                <div class="mini-calendar" id="miniCalendar">
+                    <!-- Generato dinamicamente -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-actions">
+            <a href="https://calendar.google.com/calendar/u/0/r/eventedit" target="_blank" class="btn btn-primary">
+                ➕ Crea Nuovo Evento
+            </a>
+            <a href="./calendario-completo.html" class="btn btn-secondary">
+                📅 Vista Calendario Completo
+            </a>
+            <a href="https://calendar.google.com/calendar/u/0/r?cid=monkeynsleeps@gmail.com" target="_blank" class="btn btn-secondary">
+                🔗 Google Calendar
+            </a>
+            <a href="https://gianlucamadeddu.github.io/mns-group-portal/" class="btn btn-secondary">
+                🏠 Portale MNS
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Dati di esempio - sostituiremo con l'API Google Calendar
+        const eventiEsempio = {
+            oggi: [
+                {
+                    time: "09:30 - 10:30",
+                    title: "Standup mattutino",
+                    attendees: "Tutti i soci",
+                    type: "meeting"
+                },
+                {
+                    time: "14:30 - 16:00", 
+                    title: "Riunione mensile strategica",
+                    attendees: "Gianluca, Andrea, Simone",
+                    type: "meeting"
+                },
+                {
+                    time: "17:00 - 18:00",
+                    title: "Call cliente - Progetto Alfa", 
+                    attendees: "Nicola, Gabriele",
+                    type: "client"
+                }
+            ],
+            prossimi: [
+                {
+                    time: "Dom 25 Ago",
+                    title: "🚨 Scadenza bilancio Q2",
+                    attendees: "Gianluca, Andrea", 
+                    type: "deadline"
+                },
+                {
+                    time: "Mer 28 Ago - 10:00",
+                    title: "Workshop: Valutazione Marchi",
+                    attendees: "Tutti i soci",
+                    type: "workshop"
+                },
+                {
+                    time: "Ven 30 Ago - 15:00", 
+                    title: "Review trimestrale",
+                    attendees: "Tutti i soci",
+                    type: "meeting"
+                },
+                {
+                    time: "Lun 2 Set - 09:00",
+                    title: "Presentazione nuovo cliente",
+                    attendees: "Simone, Nicola", 
+                    type: "client"
+                }
+            ]
+        };
+        
+        function renderEvents(eventi, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (eventi.length === 0) {
+                container.innerHTML = '<div class="no-events">Nessun evento programmato</div>';
+                return;
+            }
+            
+            container.innerHTML = eventi.map(evento => `
+                <div class="event-item event-${evento.type}">
+                    <div class="event-time">${evento.time}</div>
+                    <div class="event-title">${evento.title}</div>
+                    <div class="event-attendees">👥 ${evento.attendees}</div>
+                </div>
+            `).join('');
+        }
+        
+        function generateMiniCalendar() {
+            const calendar = document.getElementById('miniCalendar');
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            
+            // Headers giorni settimana
+            const headers = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
+            headers.forEach(header => {
+                const div = document.createElement('div');
+                div.className = 'mini-calendar-header';
+                div.textContent = header;
+                calendar.appendChild(div);
+            });
+            
+            // Primo giorno del mese e numero di giorni
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - (firstDay.getDay() + 6) % 7);
+            
+            // Genera 42 giorni (6 settimane)
+            for (let i = 0; i < 42; i++) {
+                const cellDate = new Date(startDate);
+                cellDate.setDate(startDate.getDate() + i);
+                
+                const div = document.createElement('div');
+                div.className = 'mini-calendar-day';
+                
+                if (cellDate.getMonth() === currentMonth) {
+                    div.textContent = cellDate.getDate();
+                    
+                    // Evidenzia oggi
+                    if (cellDate.toDateString() === today.toDateString()) {
+                        div.classList.add('mini-calendar-today');
+                    }
+                    
+                    // Giorni con eventi (esempio)
+                    const hasEvent = [5, 7, 12, 15, 21, 25, 28, 30].includes(cellDate.getDate());
+                    if (hasEvent) {
+                        div.classList.add('mini-calendar-has-event');
+                    }
+                }
+                
+                calendar.appendChild(div);
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('todayCount').textContent = eventiEsempio.oggi.length;
+            document.getElementById('weekCount').textContent = eventiEsempio.oggi.length + eventiEsempio.prossimi.length;
+            document.getElementById('urgentCount').textContent = eventiEsempio.prossimi.filter(e => e.type === 'deadline').length;
+        }
+        
+        function updateCurrentMonth() {
+            const now = new Date();
+            const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+                'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+            document.getElementById('currentMonth').textContent = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+        }
+        
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentMonth();
+            renderEvents(eventiEsempio.oggi, 'todayEvents');
+            renderEvents(eventiEsempio.prossimi, 'upcomingEvents'); 
+            generateMiniCalendar();
+            updateStats();
+        });
+        
+        // Aggiornamento automatico ogni 5 minuti
+        setInterval(() => {
+            console.log('Aggiornamento dati calendario...');
+            // Qui si collegherà l'API Google Calendar
+        }, 300000);
+    </script>
+</body>
+</html>
