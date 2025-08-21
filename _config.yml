@@ -1,0 +1,45 @@
+# Configurazione GitHub Pages per Calendario MNS Group
+
+# Informazioni sito
+title: "Calendario MNS Group"
+description: "Sistema di calendario unificato per MNS Group con sincronizzazione Google Calendar"
+url: "https://gianlucamadeddu.github.io"
+baseurl: "/mns-group-calendar"
+
+# Impostazioni GitHub Pages
+source: .
+destination: ./_site
+markdown: kramdown
+highlighter: rouge
+
+# Plugin (solo quelli supportati da GitHub Pages)
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+
+# Escludere file dalla build
+exclude:
+  - README.md
+  - .gitignore
+
+# Impostazioni SEO
+lang: it
+author: MNS Group
+keywords: calendario, gestione, eventi, riunioni, MNS Group
+
+# Timezone
+timezone: Europe/Rome
+
+# Encoding
+encoding: utf-8
+
+# Altre configurazioni
+safe: true
+incremental: false
+lsi: false
+
+# Impostazioni markdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
